@@ -1,5 +1,5 @@
 {
-  "name": "petalapi",
+  "title": "petalapi",
   "version": "1.0.0",
   "description": "restful service for petal",
   "main": "server.js",
