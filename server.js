@@ -1,12 +1,18 @@
+APP = {};    
+APP.user = require('./models/user');
+APP.event = require('./models/event');
+
 var express    = require('express');
 var app        = express();
 var bodyParser = require('body-parser');
 var mongoose   = require('mongoose');
 var router     = express.Router();
 
-var index  = require('./routes/index');
-var events = require('./routes/events');
-var users  = require('./routes/users');
+var index        = require('./routes/index');
+var events       = require('./routes/events');
+var users        = require('./routes/users');
+var usersevents  = require('./routes/usersevents');
+
 
 /* Connect to database */
 mongoose.connect('mongodb://localhost/petalapi');
@@ -31,6 +37,8 @@ app.use(prefix, index);
 app.use(prefix + '/events', events);
 
 app.use(prefix + '/users', users);
+
+app.use(prefix + '/usersevents', usersevents);
 
 /* START THE SERVER */
 /* ============================================================================= */

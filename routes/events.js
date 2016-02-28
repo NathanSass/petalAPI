@@ -1,23 +1,37 @@
 var express = require('express');
 var router  = express.Router();
-var Event   = require('../models/event');
-
+var Event   =  APP.event;
+var User    =  APP.user;
 
 router.route('/')
 
     // create a bear (accessed at POST http://localhost:8080/api/bears)
     .post(function(req, res) {
+        User.findById(req.body.user_id, function(err, user) {
+            if (err) { res.send(err); }
+            var event = new Event();
+            event.title     = req.body.title;
+            event.street    = req.body.street;
+            
+            event.createdBy = req.body.user_id;
+            
+            event.save(function(err) {
+                if (err) { res.send(err); }
 
-        var event  = new Event();      // create a new instance of the Bear model
-        event.title = req.body.title;  // set the events title (comes from the request)
+                user.eventsAttending.push(event.id);
+                user.eventsCreated.push(event.id);
+                user.markModified('eventsAttending');
+                user.markModified('eventsCreated');
+                user.save();
 
-        // save the bear and check for errors
-        event.save(function(err) {
-            if (err)
-                res.send(err);
-
-            res.json({ message: 'Event created!' });
+                res.json({ message: 'Event created!' });
+            });
+            // Add event to attending & created
         });
+        
+
+        
+
     })
     .get(function(req, res) {
         Event.find(function(err, events) {
