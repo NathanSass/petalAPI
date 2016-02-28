@@ -1,6 +1,6 @@
 var express = require('express');
-var router = express.Router();
-var Event      = require('../models/event');
+var router  = express.Router();
+var Event   = require('../models/event');
 
 
 router.route('/')
@@ -48,12 +48,16 @@ router.route('/:event_id')
             if (err)
                 res.send(err);
 
-            event.title = req.body.title;
+            if ("title" in req.body)
+                event.title  = req.body.title;
+            if ("street" in req.body)
+                event.street = req.body.street;
+            if ("data" in req.body)
+                event.date   = req.body.date;
 
             event.save(function(err) {
                 if (err)
                     res.send(err);
-
                 res.json({ message: 'Event updated!' });
             });
 

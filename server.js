@@ -6,6 +6,7 @@ var router     = express.Router();
 
 var index  = require('./routes/index');
 var events = require('./routes/events');
+var users  = require('./routes/users');
 
 /* Connect to database */
 mongoose.connect('mongodb://localhost/petalapi');
@@ -29,6 +30,7 @@ app.use(prefix, index);
 
 app.use(prefix + '/events', events);
 
+app.use(prefix + '/users', users);
 
 /* START THE SERVER */
 /* ============================================================================= */
