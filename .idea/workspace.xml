@@ -3,7 +3,7 @@
   <component name="ChangeListManager">
     <list default="true" id="5d1b74a5-29d7-4302-a335-696269fcdb4c" name="Default" comment="">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/routes/users.js" afterPath="$PROJECT_DIR$/routes/users.js" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/README.md" afterPath="$PROJECT_DIR$/README.md" />
     </list>
     <ignored path="petalAPI.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -51,8 +51,8 @@
           </provider>
           <provider selected="true" editor-type-id="split-provider[text-editor;MultiMarkdownPreviewEditor]">
             <state split_layout="FIRST">
-              <first_editor vertical-scroll-proportion="0.0">
-                <caret line="0" column="22" selection-start-line="0" selection-start-column="22" selection-end-line="0" selection-end-column="22" />
+              <first_editor vertical-scroll-proportion="0.06355932">
+                <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
                 <folding />
               </first_editor>
               <second_editor />
@@ -88,6 +88,7 @@
         <option value="$PROJECT_DIR$/routes/events.js" />
         <option value="$PROJECT_DIR$/models/event.js" />
         <option value="$PROJECT_DIR$/routes/users.js" />
+        <option value="$PROJECT_DIR$/README.md" />
       </list>
     </option>
   </component>
@@ -290,7 +291,13 @@
       <option name="project" value="LOCAL" />
       <updated>1456739831469</updated>
     </task>
-    <option name="localTasksCounter" value="6" />
+    <task id="LOCAL-00006" summary="All data of my previous SQL/php database is now captured in this api">
+      <created>1456740127372</created>
+      <option name="number" value="00006" />
+      <option name="project" value="LOCAL" />
+      <updated>1456740127372</updated>
+    </task>
+    <option name="localTasksCounter" value="7" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -354,7 +361,8 @@
     <MESSAGE value="Added users w/ associated CRUD" />
     <MESSAGE value="Added databse relationship when an event is created" />
     <MESSAGE value="Retrieves data for a user when password &amp; username are sent" />
-    <option name="LAST_COMMIT_MESSAGE" value="Retrieves data for a user when password &amp; username are sent" />
+    <MESSAGE value="All data of my previous SQL/php database is now captured in this api" />
+    <option name="LAST_COMMIT_MESSAGE" value="All data of my previous SQL/php database is now captured in this api" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -539,8 +547,8 @@
       </provider>
       <provider selected="true" editor-type-id="split-provider[text-editor;MultiMarkdownPreviewEditor]">
         <state split_layout="FIRST">
-          <first_editor vertical-scroll-proportion="0.0">
-            <caret line="0" column="22" selection-start-line="0" selection-start-column="22" selection-end-line="0" selection-end-column="22" />
+          <first_editor vertical-scroll-proportion="0.06355932">
+            <caret line="2" column="31" selection-start-line="2" selection-start-column="31" selection-end-line="2" selection-end-column="31" />
             <folding />
           </first_editor>
           <second_editor />
