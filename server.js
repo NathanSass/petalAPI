@@ -1,6 +1,10 @@
-APP = {};    
-APP.user = require('./models/user');
-APP.event = require('./models/event');
+/* Global Model Object */
+APP = {
+	models: {
+		user: require('./models/user'),
+		event: require('./models/event')
+	}
+}; 
 
 var express    = require('express');
 var app        = express();

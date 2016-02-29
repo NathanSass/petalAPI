@@ -1,11 +1,13 @@
 var express = require('express');
 var router  = express.Router();
-var Event   =  APP.event;
-var User    =  APP.user;
+var Event   =  APP.models.event;
+var User    =  APP.models.user;
 
 router.route('/')
 
-    // create a bear (accessed at POST http://localhost:8080/api/bears)
+    /* create a event (accessed at POST http://localhost:8080/api/events)
+    *  Also creats the "join" between the user that created it, and adds the user to attending it
+    */
     .post(function(req, res) {
         User.findById(req.body.user_id, function(err, user) {
             if (err) { res.send(err); }
@@ -26,11 +28,7 @@ router.route('/')
 
                 res.json({ message: 'Event created!' });
             });
-            // Add event to attending & created
-        });
-        
-
-        
+        });      
 
     })
     .get(function(req, res) {
@@ -42,11 +40,11 @@ router.route('/')
         });
     });
 
-// on routes that end in /bears/:bear_id
-// ----------------------------------------------------
+/* on routes that end in /events/:event_id */
+/* ---------------------------------------------------- */
 router.route('/:event_id')
 
-    // get the event with that id (accessed at GET http://localhost:8080/api/events/:event_id)
+    /* get the event with that id (accessed at GET http://localhost:8080/api/events/:event_id) */
     .get(function(req, res) {
         Event.findById(req.params.event_id, function(err, event) {
             if (err)
@@ -54,7 +52,7 @@ router.route('/:event_id')
             res.json(event);
         });
     })
-    // update the event with this id (accessed at PUT http://localhost:8080/api/events/:event_id)
+    /* update the event with this id (accessed at PUT http://localhost:8080/api/events/:event_id) */
     .put(function(req, res) {
 
         Event.findById(req.params.event_id, function(err, event) {
@@ -77,7 +75,7 @@ router.route('/:event_id')
 
         });
     })
-    // delete the event with this id (accessed at DELETE http://localhost:8080/api/event/:event_id)
+    /* delete the event with this id (accessed at DELETE http://localhost:8080/api/event/:event_id) */
     .delete(function(req, res) {
         Event.remove({
             _id: req.params.event_id
@@ -85,6 +83,38 @@ router.route('/:event_id')
             if (err)
                 res.send(err);
             res.json({ message: 'Successfully deleted' });
+        });
+    });
+
+/* on routes that end in /events/users/:user_id */
+/* Returns and event objects based on user query
+/* ---------------------------------------------------- */
+router.route('/users/:user_id')
+
+    /* returns the likedEvents (accessed at GET http://localhost:8080/api/user/events/:user_id) */
+    .get(function(req, res) {
+      User.findById(req.params.user_id, function(err, user) {
+            if (err) { res.send(err); }
+            var userAttending = user.eventsAttending; // array
+            var userCreated   = user.eventsCreated;   // array
+            Event.find({
+                '_id': { $in: userAttending },
+            }, function(err, attending){
+                if (err) { res.send(err); }
+
+
+                Event.find({
+                    '_id': { $in: userCreated },
+                }, function(err, created){
+                    if (err) { res.send(err); }
+                    res.json({ userAttending: attending, userCreated: created });
+                
+                });
+
+
+
+            });
+
         });
     });
 

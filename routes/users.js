@@ -1,6 +1,6 @@
 var express = require('express');
 var router  = express.Router();
-var User    = APP.user;
+var User    = APP.models.user;
 
 
 router.route('/')

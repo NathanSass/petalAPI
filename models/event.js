@@ -3,7 +3,6 @@ var Schema       = mongoose.Schema;
 
 var User = require('./user');
 
-
 var EventSchema   = new Schema({
     title: String,
     street: String,
