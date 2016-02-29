@@ -5,7 +5,7 @@ var User    = APP.models.user;
 
 router.route('/')
 
-    // create a bear (accessed at POST http://localhost:8080/api/bears)
+    // create event (accessed at POST http://localhost:8080/api/events)
     .post(function(req, res) {
 
         var user = new User();
@@ -35,6 +35,14 @@ router.route('/')
 
             res.json(users);
         });
+    })
+    .put(function(req, res) {
+        User.findOne(
+            {username: req.body.username, password: req.body.password}, function(err, user) {
+                if (err) { res.send(err) }
+                res.json(user)
+        });
+
     });
 
 // on routes that end in /bears/:bear_id
