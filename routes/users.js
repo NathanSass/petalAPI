@@ -38,14 +38,13 @@ router.route('/')
     })
     .put(function(req, res) {
         User.findOne(
-            {username: req.body.username, password: req.body.password}, function(err, user) {
+            { username: req.body.username, password: req.body.password }, function(err, user) {
                 if (err) { res.send(err) }
                 res.json(user)
         });
-
     });
 
-// on routes that end in /bears/:bear_id
+// on routes that end in /events/:event_id
 // ----------------------------------------------------
 router.route('/:user_id')
 
