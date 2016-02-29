@@ -95,23 +95,61 @@ router.route('/users/:user_id')
     .get(function(req, res) {
       User.findById(req.params.user_id, function(err, user) {
             if (err) { res.send(err); }
+
+            Array.prototype.getUnique = function(){
+                var u = {}, a = [];
+                for(var i = 0, l = this.length; i < l; ++i){
+                    if(u.hasOwnProperty(this[i])) {
+                        continue;
+                    }
+                    a.push(this[i]);
+                    u[this[i]] = 1;
+                }
+                return a;
+            };
+
             var userAttending = user.eventsAttending; // array
             var userCreated   = user.eventsCreated;   // array
             Event.find({
-                '_id': { $in: userAttending },
+                '_id': { $in: userAttending }
             }, function(err, attending){
                 if (err) { res.send(err); }
-
 
                 Event.find({
                     '_id': { $in: userCreated },
                 }, function(err, created){
                     if (err) { res.send(err); }
-                    res.json({ userAttending: attending, userCreated: created });
-                
+
+                    Event.find(function(err, events) {
+                        if (err) { res.send(err); }
+
+                        var eventIDs = events.map(function(obj){
+                            return obj.id;
+                        });
+
+                        var eventsToRemove = userAttending
+                                                .concat(userCreated)
+                                                .getUnique()
+                                                .map(function(id){
+                                                    return id + "";
+                                                 });
+
+                        var unseenEventIds = eventIDs.filter( function( el ) {
+                            return eventsToRemove.indexOf( el ) < 0;
+                        } );
+
+
+                        Event.find({ //TODO: Add query here for location & limit records
+                            '_id': { $in: unseenEventIds }
+                        }, function(err, events) {
+                            if (err) { res.send(err); }
+                            
+                            res.json({ userAttending: attending, userCreated: created, newEvents: events });
+                        });
+        
+                    });
+
                 });
-
-
 
             });
 
