@@ -127,9 +127,7 @@ router.route('/users/:user_id')
                             return obj.id;
                         });
 
-                        var eventsToRemove = userAttending
-                                                .concat(userCreated)
-                                                .getUnique()
+                        var eventsToRemove = userAttending.concat(userCreated).getUnique()
                                                 .map(function(id){
                                                     return id + "";
                                                  });
