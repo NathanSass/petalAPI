@@ -9,8 +9,7 @@ var UserSchema   = new Schema({
     username: String,
     password: String,
     date: { type: Date, default: Date.now },
-    eventsAttending: [ { type : Schema.Types.ObjectId, ref: 'Event' } ],
-    eventsCreated: [ { type : Schema.Types.ObjectId, ref: 'Event' } ]
+    eventsAttending: [ { type : Schema.Types.ObjectId, ref: 'Event' } ]
 });
 
 module.exports = mongoose.model('User', UserSchema);

@@ -11,7 +11,8 @@ router.route('/')
     .post(function(req, res) {
         User.findById(req.body.user_id, function(err, user) {
             if (err) { res.send(err); }
-            var event = new Event();
+            var event       = new Event();
+
             event.title     = req.body.title;
             event.street    = req.body.street;
             
@@ -26,7 +27,7 @@ router.route('/')
                 user.markModified('eventsCreated');
                 user.save();
 
-                res.json({ message: 'Event created!' });
+                res.json({ success: event });
             });
         });      
 
@@ -93,7 +94,7 @@ router.route('/users/:user_id')
 
     /* returns the likedEvents (accessed at GET http://localhost:8080/api/user/events/:user_id) */
     .get(function(req, res) {
-      User.findById(req.params.user_id, function(err, user) {
+        User.findById(req.params.user_id, function(err, user) {
             if (err) { res.send(err); }
 
             Array.prototype.getUnique = function(){
@@ -109,47 +110,66 @@ router.route('/users/:user_id')
             };
 
             var userAttending = user.eventsAttending; // array
-            var userCreated   = user.eventsCreated;   // array
-            Event.find({
-                '_id': { $in: userAttending }
-            }, function(err, attending){
-                if (err) { res.send(err); }
+
+            if (userAttending.length === 0) {
+                Event.find(function(err, events) {
+                    if (err)
+                        res.send(err);
+
+                    res.json({ userAttending: [], userCreated: [], newEvents: events });
+                });
+
+
+            } else {
+
 
                 Event.find({
-                    '_id': { $in: userCreated },
-                }, function(err, created){
+                    '_id': { $in: userAttending }
+                }, function(err, attending){
                     if (err) { res.send(err); }
 
-                    Event.find(function(err, events) {
+                    Event.find({
+                        'createdBy': user.id
+                    }, function(err, created){
                         if (err) { res.send(err); }
 
-                        var eventIDs = events.map(function(obj){
-                            return obj.id;
-                        });
-
-                        var eventsToRemove = userAttending.concat(userCreated).getUnique()
-                                                .map(function(id){
-                                                    return id + "";
-                                                 });
-
-                        var unseenEventIds = eventIDs.filter( function( el ) {
-                            return eventsToRemove.indexOf( el ) < 0;
-                        } );
-
-
-                        Event.find({ //TODO: Add query here for location & limit records
-                            '_id': { $in: unseenEventIds }
-                        }, function(err, events) {
+                        Event.find(function(err, events) {
                             if (err) { res.send(err); }
-                            
-                            res.json({ userAttending: attending, userCreated: created, newEvents: events });
+
+                            var eventIDs = events.map(function(obj){
+                                return obj.id;
+                            });
+
+                            var userCreatedIds =  created.map(function(obj) {
+                                return obj.id;
+                            });
+
+                            var eventsToRemove = userAttending.concat(userCreatedIds).getUnique()
+                                .map(function(id){
+                                    return id + "";
+                                });
+
+                            var unseenEventIds = eventIDs.filter( function( el ) {
+                                return eventsToRemove.indexOf( el ) < 0;
+                            } );
+
+
+                            Event.find({ //TODO: Add query here for location & limit records
+                                '_id': { $in: unseenEventIds }
+                            }, function(err, events) {
+                                if (err) { res.send(err); }
+
+                                res.json({ userAttending: attending, userCreated: created, newEvents: events });
+                            });
+
                         });
-        
+
                     });
 
                 });
 
-            });
+
+            }
 
         });
     });
