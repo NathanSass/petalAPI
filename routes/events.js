@@ -1,5 +1,7 @@
 var express = require('express');
 var router  = express.Router();
+var async   = require('async');
+var util    = require('../js/util.js');
 var Event   = APP.models.event;
 var User    = APP.models.user;
 
@@ -11,7 +13,7 @@ router.route('/')
     .post(function(req, res) {
         User.findById(req.body.user_id, function(err, user) {
             if (err) { res.send(err); }
-            var event       = new Event();
+            var event = new Event();
 
             event.title  = req.body.title;
 
@@ -108,73 +110,47 @@ router.route('/users/:user_id')
         User.findById(req.params.user_id, function(err, user) {
             if (err) { res.send(err); }
 
-            Array.prototype.getUnique = function(){
-                var u = {}, a = [];
-                for(var i = 0, l = this.length; i < l; ++i){
-                    if(u.hasOwnProperty(this[i])) {
-                        continue;
-                    }
-                    a.push(this[i]);
-                    u[this[i]] = 1;
-                }
-                return a;
-            };
-
-            var userAttending = user.eventsAttending; // array
+            var userAttending = user.eventsAttending;
 
             if (userAttending.length === 0) {
+
                 Event.find(function(err, events) {
-                    if (err)
-                        res.send(err);
+                    if (err) { res.send(err); }
 
                     res.json({ userAttending: [], userCreated: [], newEvents: events });
                 });
 
-
             } else {
 
-
-                Event.find({
-                    '_id': { $in: userAttending }
-                }, function(err, attending){
+                async.parallel({
+                    attending: function(callback) {
+                        Event.find({'_id': {$in: userAttending}}, callback);
+                    },
+                    createdBy: function(callback) {
+                        Event.find({'createdBy': user.id}, callback);
+                    },
+                    allEvents: function(callback) {
+                        Event.find(callback);
+                    }
+                }, function(err, results){
                     if (err) { res.send(err); }
 
-                    Event.find({
-                        'createdBy': user.id
-                    }, function(err, created){
+                    var allEventsIds   = util.getArrOfIds(results.allEvents);
+                    var eventsToRemove = util.getArrOfIds(results.attending);
+
+                    var eventIdsToDisplay = allEventsIds.filter( function(el) {
+                        return eventsToRemove.indexOf(el) < 0;
+                    });
+
+                    Event.find({ //TODO: Add query here for location & limit records
+                        '_id': { $in: eventIdsToDisplay }
+                    }, function(err, events) {
                         if (err) { res.send(err); }
 
-                        Event.find(function(err, events) {
-                            if (err) { res.send(err); }
-
-                            var eventIDs = events.map(function(obj){
-                                return obj.id;
-                            });
-
-                            var eventsToRemove = userAttending.getUnique()
-                                .map(function(id){
-                                    return id + "";
-                                });
-
-                            var unseenEventIds = eventIDs.filter( function( el ) {
-                                return eventsToRemove.indexOf( el ) < 0;
-                            } );
-
-
-                            Event.find({ //TODO: Add query here for location & limit records
-                                '_id': { $in: unseenEventIds }
-                            }, function(err, events) {
-                                if (err) { res.send(err); }
-
-                                res.json({ userAttending: attending, userCreated: created, newEvents: events });
-                            });
-
-                        });
-
+                        res.json({ userAttending: results.attending, userCreated: results.createdBy, newEvents: events });
                     });
 
                 });
-
 
             }
 
