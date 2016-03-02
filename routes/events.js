@@ -13,6 +13,8 @@ router.route('/')
     .post(function(req, res) {
         User.findById(req.body.user_id, function(err, user) {
             if (err) { res.send(err); }
+
+            //noinspection JSClosureCompilerSyntax
             var event = new Event();
 
             event.title  = req.body.title;
@@ -47,8 +49,7 @@ router.route('/')
     })
     .get(function(req, res) {
         Event.find(function(err, events) {
-            if (err)
-                res.send(err);
+            if (err) { res.send(err); }
 
             res.json(events);
         });
@@ -61,8 +62,8 @@ router.route('/:event_id')
     /* get the event with that id (accessed at GET http://localhost:8080/api/events/:event_id) */
     .get(function(req, res) {
         Event.findById(req.params.event_id, function(err, event) {
-            if (err)
-                res.send(err);
+            if (err) { res.send(err); }
+
             res.json(event);
         });
     })
@@ -110,49 +111,35 @@ router.route('/users/:user_id')
         User.findById(req.params.user_id, function(err, user) {
             if (err) { res.send(err); }
 
-            var userAttending = user.eventsAttending;
+            async.parallel({
+                attending: function(callback) {
+                    Event.find({'_id': {$in: user.eventsAttending}}, callback);
+                },
+                createdBy: function(callback) {
+                    Event.find({'createdBy': user.id}, callback);
+                },
+                allEvents: function(callback) {
+                    Event.find(callback);
+                }
+            }, function(err, results){
+                if (err) { res.send(err); }
 
-            if (userAttending.length === 0) {
+                var allEventsIds   = util.getArrOfIds(results.allEvents);
+                var eventsToRemove = util.getArrOfIds(results.attending);
 
-                Event.find(function(err, events) {
-                    if (err) { res.send(err); }
-
-                    res.json({ userAttending: [], userCreated: [], newEvents: events });
+                var eventIdsToDisplay = allEventsIds.filter( function(el) {
+                    return eventsToRemove.indexOf(el) < 0;
                 });
 
-            } else {
-
-                async.parallel({
-                    attending: function(callback) {
-                        Event.find({'_id': {$in: userAttending}}, callback);
-                    },
-                    createdBy: function(callback) {
-                        Event.find({'createdBy': user.id}, callback);
-                    },
-                    allEvents: function(callback) {
-                        Event.find(callback);
-                    }
-                }, function(err, results){
+                Event.find({ //TODO: Add query here for location & limit records
+                    '_id': { $in: eventIdsToDisplay }
+                }, function(err, events) {
                     if (err) { res.send(err); }
 
-                    var allEventsIds   = util.getArrOfIds(results.allEvents);
-                    var eventsToRemove = util.getArrOfIds(results.attending);
-
-                    var eventIdsToDisplay = allEventsIds.filter( function(el) {
-                        return eventsToRemove.indexOf(el) < 0;
-                    });
-
-                    Event.find({ //TODO: Add query here for location & limit records
-                        '_id': { $in: eventIdsToDisplay }
-                    }, function(err, events) {
-                        if (err) { res.send(err); }
-
-                        res.json({ userAttending: results.attending, userCreated: results.createdBy, newEvents: events });
-                    });
-
+                    res.json({ userAttending: results.attending, userCreated: results.createdBy, newEvents: events });
                 });
 
-            }
+            });
 
         });
     });
