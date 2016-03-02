@@ -1,30 +1,41 @@
 var express = require('express');
 var router  = express.Router();
-var Event   =  APP.models.event;
-var User    =  APP.models.user;
+var Event   = APP.models.event;
+var User    = APP.models.user;
 
 router.route('/')
 
     /* create a event (accessed at POST http://localhost:8080/api/events)
-    *  Also creats the "join" between the user that created it, and adds the user to attending it
+    *  Also creates the "join" between the user that created it, and adds the user to attending it
     */
     .post(function(req, res) {
         User.findById(req.body.user_id, function(err, user) {
             if (err) { res.send(err); }
             var event       = new Event();
 
-            event.title     = req.body.title;
-            event.street    = req.body.street;
-            
+            event.title  = req.body.title;
+
+            event.street = req.body.street;
+            event.city   = req.body.city;
+            event.state  = req.body.state;
+
+            event.startDateTime = req.body.startDateTime;
+            event.endDateTime   = req.body.endDateTime;
+
+            event.about     = req.body.about;
+            event.price     = req.body.price;
+            event.eventSize = req.body.eventSize;
+
+            event.loc.lat = req.body.lat;
+            event.loc.lng = req.body.lng;
+
             event.createdBy = req.body.user_id;
-            
+
             event.save(function(err) {
                 if (err) { res.send(err); }
 
                 user.eventsAttending.push(event.id);
-                user.eventsCreated.push(event.id);
                 user.markModified('eventsAttending');
-                user.markModified('eventsCreated');
                 user.save();
 
                 res.json({ success: event });
@@ -140,11 +151,7 @@ router.route('/users/:user_id')
                                 return obj.id;
                             });
 
-                            var userCreatedIds =  created.map(function(obj) {
-                                return obj.id;
-                            });
-
-                            var eventsToRemove = userAttending.concat(userCreatedIds).getUnique()
+                            var eventsToRemove = userAttending.getUnique()
                                 .map(function(id){
                                     return id + "";
                                 });
