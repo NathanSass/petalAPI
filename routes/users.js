@@ -29,6 +29,7 @@ router.route('/')
         });
     })
     .get(function(req, res) {
+        console.log("In the get route");
         User.find(function(err, users) {
             if (err)
                 res.send(err);

@@ -131,6 +131,7 @@ router.route('/users/:user_id')
                     return eventsToRemove.indexOf(el) < 0;
                 });
 
+                console.log("results", results);
                 Event.find({ //TODO: Add query here for location & limit records
                     '_id': { $in: eventIdsToDisplay }
                 }, function(err, events) {
